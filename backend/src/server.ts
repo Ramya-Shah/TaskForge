@@ -3,7 +3,7 @@ import cors from 'cors';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import Redis from 'ioredis';
-import { initDB } from './db';
+import { initDB, db } from './db';
 import { enqueueJob } from './queue/producer';
 import { startDelayedJobPoller } from './worker/retryEngine';
 
@@ -42,6 +42,16 @@ redisSubscriber.on('message', (channel, message) => {
     } catch(err) {
       console.error('Failed to parse Redis message:', err);
     }
+  }
+});
+
+app.get('/jobs/history', async (req, res) => {
+  try {
+    const result = await db.query('SELECT id, type, status, attempts, created_at, updated_at FROM jobs ORDER BY updated_at DESC LIMIT 50');
+    res.status(200).json(result.rows);
+  } catch (error: any) {
+    console.error('Failed to fetch job history', error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
