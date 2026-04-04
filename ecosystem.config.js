@@ -15,7 +15,7 @@ module.exports = {
     {
       name: "taskforge-worker",
       script: "./backend/dist/worker/worker.js",
-      instances: 3, // Automatically spawn 3 independent workers in parallel!
+      instances: 6, // Automatically spawn 6 independent workers in parallel!
       exec_mode: "cluster_mode",
       autorestart: true,
       watch: false,

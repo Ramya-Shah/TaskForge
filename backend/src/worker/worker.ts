@@ -13,7 +13,8 @@ const redisPublisher = new Redis({
   port: parseInt(process.env.REDIS_PORT || '6379'),
 });
 
-const WORKER_ID = `worker-${Math.random().toString(36).substring(2, 7)}`;
+const INSTANCE_ID = process.env.NODE_APP_INSTANCE ? parseInt(process.env.NODE_APP_INSTANCE) + 1 : null;
+const WORKER_ID = INSTANCE_ID ? `Worker ${INSTANCE_ID}` : `Worker-${Math.random().toString(36).substring(2, 7)}`;
 
 export const startWorker = async () => {
   console.log(`[Worker ${WORKER_ID}] Booting up queue processor...`);
