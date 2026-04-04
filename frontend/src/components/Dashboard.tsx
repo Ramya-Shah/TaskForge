@@ -15,7 +15,8 @@ import {
   Zap
 } from 'lucide-react';
 
-const SOCKET_URL = 'http://localhost:3001';
+// Empty string = connect to the origin that served this page (Nginx in prod, localhost in dev)
+const SOCKET_URL = import.meta.env.VITE_API_URL ?? '';
 
 type JobState = {
   pending: number;
@@ -58,7 +59,7 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await fetch('http://localhost:3001/jobs/stats');
+        const res = await fetch('/jobs/stats');
         if (res.ok) {
           const initialStats = await res.json();
           setStats(initialStats);
@@ -71,7 +72,7 @@ export default function Dashboard() {
 
     const fetchState = async () => {
       try {
-        const res = await fetch('http://localhost:3001/queue/state');
+        const res = await fetch('/queue/state');
         if (res.ok) setIsPaused((await res.json()).isPaused);
       } catch (err) { }
     };
@@ -82,7 +83,7 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const res = await fetch('http://localhost:3001/jobs/history');
+        const res = await fetch('/jobs/history');
         if (res.ok) {
           const data = await res.json();
           setHistory(data);
@@ -267,7 +268,7 @@ export default function Dashboard() {
         <div className="flex items-center gap-3">
           <button
             onClick={async () => {
-              await fetch(`http://localhost:3001/queue/${isPaused ? 'resume' : 'pause'}`, { method: 'POST' });
+              await fetch(`/queue/${isPaused ? 'resume' : 'pause'}`, { method: 'POST' });
             }}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-all border shadow-lg ${isPaused ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border-rose-500/30 hover:bg-rose-500/20'}`}
           >
@@ -276,7 +277,7 @@ export default function Dashboard() {
           </button>
 
           <button
-            onClick={async () => await fetch('http://localhost:3001/jobs/replay_dlq', { method: 'POST' })}
+            onClick={async () => await fetch('/jobs/replay_dlq', { method: 'POST' })}
             className="flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 transition-all hover:bg-cyan-500/20 shadow-lg"
           >
             <RefreshCw size={16} /> Replay DLQ
@@ -285,7 +286,7 @@ export default function Dashboard() {
           <button
             onClick={async () => {
               if (confirm('Nuclear Option: Are you sure you want to permanently erase all pending jobs?')) {
-                await fetch('http://localhost:3001/queue/purge', { method: 'POST' });
+                await fetch('/queue/purge', { method: 'POST' });
               }
             }}
             className="flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm bg-slate-800 text-slate-200 border border-slate-700 transition-all hover:bg-slate-700 hover:text-white hover:border-red-500/50 group"
@@ -375,10 +376,10 @@ export default function Dashboard() {
                     <td className="px-6 py-4 font-medium text-slate-300">{job.type}</td>
                     <td className="px-6 py-4">
                       <span className={`px-2.5 py-1 text-[10px] uppercase font-bold tracking-widest rounded-full border ${job.status === 'completed' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
-                          job.status === 'processing' ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20' :
-                            job.status === 'delayed' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' :
-                              job.status === 'dlq' ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' :
-                                'bg-indigo-500/10 text-indigo-400 border-indigo-500/20'
+                        job.status === 'processing' ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20' :
+                          job.status === 'delayed' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' :
+                            job.status === 'dlq' ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' :
+                              'bg-indigo-500/10 text-indigo-400 border-indigo-500/20'
                         }`}>
                         {job.status}
                       </span>
