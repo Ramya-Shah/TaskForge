@@ -89,11 +89,52 @@ app.post('/queue/purge', async (req, res) => {
   // 2. Wipe the hidden exponential backoff sorted set 
   await redis.del('queue:taskforge:delayed');
   
-  // 3. Mark all active states as permanently cancelled natively
-  await db.query("UPDATE jobs SET status = 'cancelled' WHERE status IN ('pending', 'delayed', 'processing')");
+  // 3. Mark both states as permanently cancelled natively
+  await db.query("UPDATE jobs SET status = 'cancelled' WHERE status IN ('pending', 'delayed')");
   
   io.emit('queue:purged');
   res.json({ success: true });
+});
+
+// STALE JOB RECLAIMER: Recover jobs that are stuck in 'processing' for too long
+const reclaimStaleJobs = async () => {
+  try {
+    // If a job has been 'processing' for more than 5 minutes, it's likely orphaned (worker crashed)
+    const STALE_THRESHOLD = "5 minutes";
+    const { rowCount } = await db.query(`
+      UPDATE jobs 
+      SET status = 'pending', updated_at = CURRENT_TIMESTAMP, attempts = attempts + 1
+      WHERE status = 'processing' 
+      AND updated_at < (CURRENT_TIMESTAMP - INTERVAL '${STALE_THRESHOLD}')
+    `);
+    
+    if (rowCount && rowCount > 0) {
+      console.log(`[Reclaimer] Successfully recovered ${rowCount} stale/orphaned jobs back to pending.`);
+      io.emit('queue:reclaimed', { count: rowCount });
+    }
+  } catch (err) {
+    console.error('[Reclaimer] Failed to recover stale jobs:', err);
+  }
+};
+
+// Polling interval for automatic reclamation (every 60 seconds)
+setInterval(reclaimStaleJobs, 60 * 1000);
+
+app.post('/queue/cleanup_stale', async (req, res) => {
+  try {
+    const STALE_THRESHOLD = "1 second"; // Manual cleanup is aggressive
+    const { rowCount } = await db.query(`
+      UPDATE jobs 
+      SET status = 'pending', updated_at = CURRENT_TIMESTAMP, attempts = attempts + 1
+      WHERE status = 'processing' 
+      AND updated_at < (CURRENT_TIMESTAMP - INTERVAL '${STALE_THRESHOLD}')
+    `);
+    
+    io.emit('queue:reclaimed', { count: rowCount });
+    res.json({ success: true, count: rowCount });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to cleanup stale jobs' });
+  }
 });
 
 app.post('/jobs/replay_dlq', async (req, res) => {

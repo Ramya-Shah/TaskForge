@@ -174,6 +174,11 @@ export default function Dashboard() {
       resyncFromDB();
     });
 
+    socket.on('queue:reclaimed', (data) => {
+      addLog(`♻️ Reclaimed ${data.count} stale jobs back to pending`);
+      resyncFromDB();
+    });
+
     socket.on('metrics:throughput', (data) => {
       pings.push(data.timestamp || Date.now());
     });
@@ -260,6 +265,10 @@ export default function Dashboard() {
           <button onClick={async () => { if (confirm('Permanently erase all pending and delayed jobs?')) { await fetch('/queue/purge', { method: 'POST' }); } }}
             style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 8, fontSize: 13, fontWeight: 600, border: '1px solid #e2e8f0', backgroundColor: '#f8fafc', color: '#475569', cursor: 'pointer', transition: 'all 0.15s' }}>
             <Trash2 size={14} style={{ color: '#ef4444' }} /> Purge Queue
+          </button>
+          <button onClick={async () => { if (confirm('Recover jobs stuck in processing back to pending?')) { await fetch('/queue/cleanup_stale', { method: 'POST' }); } }}
+            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 8, fontSize: 13, fontWeight: 600, border: '1px solid #e2e8f0', backgroundColor: '#f8fafc', color: '#6366f1', cursor: 'pointer', transition: 'all 0.15s' }}>
+            <RefreshCw size={14} /> Cleanup Stale
           </button>
         </div>
       </div>
