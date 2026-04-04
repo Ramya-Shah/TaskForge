@@ -25,7 +25,7 @@ async function blast() {
   console.log('🔥 Initiating job queue stress test...');
   let cnt = 0;
   for(let i = 0; i < 50; i++) {
-    const type = jobTypes[Math.floor(Math.random() * jobTypes.length)];
+    const type = Math.random() < 0.1 ? 'poison_pill_task' : jobTypes[Math.floor(Math.random() * jobTypes.length)];
     enqueueJob(type);
     cnt++;
     // Add tiny 50ms gaps so we can see the queue dynamically build and tear down

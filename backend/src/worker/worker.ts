@@ -28,8 +28,15 @@ export const startWorker = async () => {
   
   while (true) {
     try {
-      // 0 means it indefinitely blocks until a job is added to the List!
-      const result = await redisBlocking.blpop('queue:taskforge:jobs', 0);
+      // Admin Control: Check if queue is paused globally
+      const isPaused = await redisPublisher.get('queue:taskforge:paused');
+      if (isPaused === 'true') {
+         await new Promise(r => setTimeout(r, 1000));
+         continue; // Loop back and sleep transparently without pulling jobs
+      }
+
+      // Changed from 0 (infinite block) to 1 (1s timeout) so the while loop safely restarts and checks the `isPaused` flag!
+      const result = await redisBlocking.blpop('queue:taskforge:jobs', 1);
       if (result) {
         const [_, jobData] = result;
         const job = JSON.parse(jobData);
@@ -50,7 +57,9 @@ export const startWorker = async () => {
             // ---- EXECUTE JOB (Simulate random delay) ----
             await new Promise(resolve => setTimeout(resolve, Math.random() * 1000 + 500));
             // To effectively demonstrate Retry and DLQ: give it a 30% failure rate
-            if (Math.random() < 0.3) {
+            if (type === 'poison_pill_task') {
+                throw new Error("Fatal: Poison pill task always fails to demonstrate DLQ routing!");
+            } else if (Math.random() < 0.3) {
                 throw new Error("Generic failure simulation");
             }
             // ---------------------------------------------
