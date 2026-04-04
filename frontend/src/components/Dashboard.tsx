@@ -150,6 +150,30 @@ export default function Dashboard() {
 
     socket.on('queue:state_changed', (data) => setIsPaused(data.isPaused));
 
+    // Instantly re-sync stats + history from DB after a purge or DLQ replay
+    const resyncFromDB = async () => {
+      try {
+        const [statsRes, historyRes] = await Promise.all([
+          fetch('/jobs/stats'),
+          fetch('/jobs/history'),
+        ]);
+        if (statsRes.ok) setStats(await statsRes.json());
+        if (historyRes.ok) setHistory(await historyRes.json());
+      } catch (err) {
+        console.error('Failed to resync after purge', err);
+      }
+    };
+
+    socket.on('queue:purged', () => {
+      addLog('🗑️ Queue purged — all pending/delayed jobs cancelled');
+      resyncFromDB();
+    });
+
+    socket.on('queue:dlq_replayed', (data) => {
+      addLog(`♻️ DLQ Replayed — ${data.count} jobs re-queued`);
+      resyncFromDB();
+    });
+
     socket.on('metrics:throughput', (data) => {
       pings.push(data.timestamp || Date.now());
     });
