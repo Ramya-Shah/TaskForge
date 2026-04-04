@@ -204,221 +204,165 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-700">
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        {/* Metric Cards */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 hover:shadow-[0_0_15px_rgba(99,102,241,0.15)] transition-all">
-          <div className="flex justify-between items-start text-indigo-400">
-            <span className="p-2 bg-indigo-500/10 rounded-lg"><Activity size={24} /></span>
-          </div>
-          <div className="mt-4">
-            <h3 className="text-4xl font-bold text-slate-100">{stats.pending}</h3>
-            <p className="text-sm font-medium text-slate-500 mt-1 uppercase tracking-wider">Pending</p>
-          </div>
-        </div>
+    <div className="space-y-5">
 
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 hover:shadow-[0_0_15px_rgba(34,211,238,0.15)] transition-all">
-          <div className="flex justify-between items-start text-cyan-400">
-            <span className="p-2 bg-cyan-500/10 rounded-lg animate-pulse"><Cpu size={24} /></span>
+      {/* Metric Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        {[
+          { label: 'Pending', value: stats.pending, icon: <Activity size={18} />, color: '#6366f1', bg: '#eef2ff' },
+          { label: 'Processing', value: stats.processing, icon: <Cpu size={18} />, color: '#0891b2', bg: '#ecfeff', pulse: true },
+          { label: 'Completed', value: stats.completed, icon: <CheckCircle2 size={18} />, color: '#16a34a', bg: '#f0fdf4' },
+          { label: 'Delayed', value: stats.delayed, icon: <Clock size={18} />, color: '#d97706', bg: '#fffbeb' },
+          { label: 'Dead Letter', value: stats.dlq, icon: <ServerCrash size={18} />, color: '#dc2626', bg: '#fef2f2' },
+          { label: 'Live TPS', value: tps, icon: <Zap size={18} />, color: '#7c3aed', bg: '#f5f3ff', isTps: true },
+        ].map(card => (
+          <div key={card.label} style={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 12, padding: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)', transition: 'box-shadow 0.2s' }}
+            onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)')}
+            onMouseLeave={e => (e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.04)')}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+              <span style={{ backgroundColor: card.bg, color: card.color, borderRadius: 8, padding: 6, display: 'flex', alignItems: 'center' }}>{card.icon}</span>
+              {card.isTps && tps > 0 && <span style={{ fontSize: 10, fontWeight: 700, color: '#7c3aed', backgroundColor: '#f5f3ff', padding: '2px 6px', borderRadius: 20, letterSpacing: '0.05em' }}>LIVE</span>}
+              {card.pulse && stats.processing > 0 && (
+                <span className="flex h-2 w-2 relative">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ backgroundColor: card.color }}></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2" style={{ backgroundColor: card.color }}></span>
+                </span>
+              )}
+            </div>
+            <div style={{ fontSize: 30, fontWeight: 800, color: card.isTps ? card.color : '#0f172a', letterSpacing: '-0.03em', lineHeight: 1 }}>{card.value}</div>
+            <div style={{ fontSize: 11, color: '#64748b', marginTop: 6, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>{card.label}</div>
           </div>
-          <div className="mt-4">
-            <h3 className="text-4xl font-bold text-slate-100">{stats.processing}</h3>
-            <p className="text-sm font-medium text-slate-500 mt-1 uppercase tracking-wider">Processing</p>
-          </div>
-        </div>
-
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 hover:shadow-[0_0_15px_rgba(16,185,129,0.15)] transition-all">
-          <div className="flex justify-between items-start text-emerald-400">
-            <span className="p-2 bg-emerald-500/10 rounded-lg"><CheckCircle2 size={24} /></span>
-          </div>
-          <div className="mt-4">
-            <h3 className="text-4xl font-bold text-slate-100">{stats.completed}</h3>
-            <p className="text-sm font-medium text-slate-500 mt-1 uppercase tracking-wider">Completed</p>
-          </div>
-        </div>
-
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 hover:shadow-[0_0_15px_rgba(245,158,11,0.15)] transition-all">
-          <div className="flex justify-between items-start text-amber-400">
-            <span className="p-2 bg-amber-500/10 rounded-lg"><Clock size={24} /></span>
-          </div>
-          <div className="mt-4">
-            <h3 className="text-4xl font-bold text-slate-100">{stats.delayed}</h3>
-            <p className="text-sm font-medium text-slate-500 mt-1 uppercase tracking-wider">Delayed</p>
-          </div>
-        </div>
-
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 hover:shadow-[0_0_15px_rgba(244,63,94,0.15)] transition-all">
-          <div className="flex justify-between items-start text-rose-400">
-            <span className="p-2 bg-rose-500/10 rounded-lg"><ServerCrash size={24} /></span>
-          </div>
-          <div className="mt-4">
-            <h3 className="text-4xl font-bold text-slate-100">{stats.dlq}</h3>
-            <p className="text-sm font-medium text-slate-500 mt-1 uppercase tracking-wider">Dead Letter</p>
-          </div>
-        </div>
-
-        {/* Live TPS Speedometer */}
-        <div className="bg-gradient-to-br from-[#0c1222] to-[#040812] border border-fuchsia-500/30 rounded-2xl p-6 relative overflow-hidden transition-all group shadow-lg">
-          <div className="absolute inset-0 bg-fuchsia-500/5 group-hover:bg-fuchsia-500/10 transition-colors"></div>
-          <div className="flex justify-between items-start text-fuchsia-400 relative z-10">
-            <span className="p-2 bg-fuchsia-500/20 rounded-lg animate-pulse shadow-[0_0_15px_rgba(217,70,239,0.4)]"><Zap size={24} /></span>
-          </div>
-          <div className="mt-4 relative z-10 flex flex-col items-start">
-            <h3 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 to-purple-400">
-              {tps}
-            </h3>
-            <p className="text-sm font-medium text-fuchsia-500/80 mt-1 uppercase tracking-wider flex items-center gap-2">
-              Live TPS
-              {tps > 0 && <span className="flex h-2 w-2 relative">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-fuchsia-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-fuchsia-500"></span>
-              </span>}
-            </p>
-          </div>
-        </div>
+        ))}
       </div>
 
-      {/* Interactive Control Panel */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-wrap items-center justify-between gap-4 shadow-lg">
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 flex items-center justify-center bg-indigo-500/10 text-indigo-400 rounded-xl shadow-inner">
-            <Cpu size={20} />
+      {/* Admin Console */}
+      <div style={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 12, padding: '16px 20px', display: 'flex', flexWrap: 'wrap' as const, alignItems: 'center', justifyContent: 'space-between', gap: 12, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 36, height: 36, borderRadius: 8, backgroundColor: '#eef2ff', color: '#6366f1', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Cpu size={18} />
           </div>
           <div>
-            <h3 className="text-slate-200 font-bold border-b border-slate-700/50 pb-0.5">Admin Console</h3>
-            <p className="text-xs text-slate-500 uppercase tracking-widest mt-1">Live Infrastructure Commands</p>
+            <div style={{ fontSize: 14, fontWeight: 600, color: '#0f172a' }}>Admin Console</div>
+            <div style={{ fontSize: 11, color: '#94a3b8', textTransform: 'uppercase' as const, letterSpacing: '0.05em' }}>Infrastructure Commands</div>
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={async () => {
-              await fetch(`/queue/${isPaused ? 'resume' : 'pause'}`, { method: 'POST' });
-            }}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-all border shadow-lg ${isPaused ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border-rose-500/30 hover:bg-rose-500/20'}`}
-          >
-            {isPaused ? <Play size={16} /> : <Pause size={16} />}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' as const }}>
+          <button onClick={async () => { await fetch(`/queue/${isPaused ? 'resume' : 'pause'}`, { method: 'POST' }); }}
+            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 8, fontSize: 13, fontWeight: 600, border: isPaused ? '1px solid #bbf7d0' : '1px solid #fecaca', backgroundColor: isPaused ? '#f0fdf4' : '#fef2f2', color: isPaused ? '#16a34a' : '#dc2626', cursor: 'pointer', transition: 'all 0.15s' }}>
+            {isPaused ? <Play size={14} /> : <Pause size={14} />}
             {isPaused ? 'Resume Processing' : 'Pause Queue'}
           </button>
-
-          <button
-            onClick={async () => await fetch('/jobs/replay_dlq', { method: 'POST' })}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 transition-all hover:bg-cyan-500/20 shadow-lg"
-          >
-            <RefreshCw size={16} /> Replay DLQ
+          <button onClick={async () => await fetch('/jobs/replay_dlq', { method: 'POST' })}
+            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 8, fontSize: 13, fontWeight: 600, border: '1px solid #bae6fd', backgroundColor: '#f0f9ff', color: '#0369a1', cursor: 'pointer', transition: 'all 0.15s' }}>
+            <RefreshCw size={14} /> Replay DLQ
           </button>
-
-          <button
-            onClick={async () => {
-              if (confirm('Nuclear Option: Are you sure you want to permanently erase all pending jobs?')) {
-                await fetch('/queue/purge', { method: 'POST' });
-              }
-            }}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm bg-slate-800 text-slate-200 border border-slate-700 transition-all hover:bg-slate-700 hover:text-white hover:border-red-500/50 group"
-          >
-            <Trash2 size={16} className="text-red-400 group-hover:animate-bounce" /> Purge Queue
+          <button onClick={async () => { if (confirm('Permanently erase all pending and delayed jobs?')) { await fetch('/queue/purge', { method: 'POST' }); } }}
+            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 8, fontSize: 13, fontWeight: 600, border: '1px solid #e2e8f0', backgroundColor: '#f8fafc', color: '#475569', cursor: 'pointer', transition: 'all 0.15s' }}>
+            <Trash2 size={14} style={{ color: '#ef4444' }} /> Purge Queue
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
-        {/* Workers List */}
-        <div className="lg:col-span-1 bg-slate-900 border border-slate-800 rounded-3xl p-6 overflow-hidden relative shadow-lg">
-          <h2 className="text-lg font-bold mb-6 flex items-center gap-2">
-            <Activity className="text-indigo-400" size={20} /> Active Workers
+      {/* Workers + Event Log */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div style={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 12, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+          <h2 style={{ fontSize: 14, fontWeight: 600, color: '#0f172a', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8, marginTop: 0 }}>
+            <Activity size={16} style={{ color: '#6366f1' }} /> Worker Nodes
           </h2>
-          <div className="space-y-4">
+          <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 8 }}>
             {Object.values(workers).length === 0 ? (
-              <div className="text-slate-500 text-sm italic p-4 text-center border border-dashed border-slate-800 rounded-xl">No workers connected</div>
-            ) : (
-              Object.values(workers).map(w => (
-                <div key={w.id} className="flex items-center justify-between p-4 rounded-2xl bg-[#0b1121] border border-slate-800 shadow-inner group transition-all hover:bg-slate-800/80">
-                  <div className="flex items-center gap-3">
-                    <div className="relative">
-                      <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 group-hover:animate-ping absolute"></div>
-                      <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 relative"></div>
-                    </div>
-                    <span className="font-mono text-sm font-semibold text-slate-200">{w.id}</span>
+              <div style={{ padding: '20px', textAlign: 'center' as const, color: '#94a3b8', fontSize: 13, border: '1px dashed #e2e8f0', borderRadius: 8 }}>No workers connected</div>
+            ) : Object.values(workers).map(w => (
+              <div key={w.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 12px', borderRadius: 8, backgroundColor: '#f8fafc', border: '1px solid #e2e8f0' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div className="relative w-2 h-2">
+                    <div className="w-2 h-2 rounded-full absolute animate-ping opacity-60" style={{ backgroundColor: '#22c55e' }}></div>
+                    <div className="w-2 h-2 rounded-full relative" style={{ backgroundColor: '#22c55e' }}></div>
                   </div>
-                  <span className="text-[10px] px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase tracking-widest font-bold">
-                    {w.status}
-                  </span>
+                  <span style={{ fontFamily: 'monospace', fontSize: 12, fontWeight: 600, color: '#334155' }}>{w.id}</span>
                 </div>
-              ))
-            )}
+                <span style={{ fontSize: 10, fontWeight: 700, color: '#16a34a', backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0', padding: '2px 8px', borderRadius: 20, textTransform: 'uppercase' as const, letterSpacing: '0.05em' }}>{w.status}</span>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Live Logs */}
-        <div className="lg:col-span-2 bg-[#020614] border border-slate-800 rounded-3xl p-6 font-mono text-sm shadow-inner relative overflow-hidden">
-          <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-800/60 z-10 relative">
-            <h2 className="text-lg font-bold font-sans flex items-center gap-2 text-slate-200"><AlertOctagon className="text-slate-500" size={20} /> Event Stream</h2>
-            <span className="flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-indigo-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+        <div className="lg:col-span-2" style={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 12, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, paddingBottom: 12, borderBottom: '1px solid #f1f5f9' }}>
+            <h2 style={{ fontSize: 14, fontWeight: 600, color: '#0f172a', display: 'flex', alignItems: 'center', gap: 8, margin: 0 }}>
+              <AlertOctagon size={16} style={{ color: '#64748b' }} /> Event Stream
+            </h2>
+            <span className="flex h-2 w-2 relative">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-60" style={{ backgroundColor: '#6366f1' }}></span>
+              <span className="relative inline-flex rounded-full h-2 w-2" style={{ backgroundColor: '#6366f1' }}></span>
             </span>
           </div>
-          <div className="space-y-3 max-h-[400px] overflow-y-auto pr-4 z-10 relative">
+          <div style={{ maxHeight: 260, overflowY: 'auto', display: 'flex', flexDirection: 'column' as const, gap: 2 }}>
             {log.length === 0 ? (
-              <div className="text-slate-600 italic">Waiting for events...</div>
-            ) : (
-              log.map(entry => (
-                <div key={entry.id} className="text-slate-300 py-1 transition-all">
-                  <span className="text-slate-600 mr-3 hidden sm:inline-block">[{new Date(entry.time).toISOString().split('T')[1].slice(0, 12)}]</span>
-                  {entry.msg}
-                </div>
-              ))
-            )}
+              <div style={{ color: '#94a3b8', fontSize: 13, fontStyle: 'italic' }}>Waiting for events...</div>
+            ) : log.map(entry => (
+              <div key={entry.id} style={{ display: 'flex', alignItems: 'baseline', gap: 10, padding: '5px 0', borderBottom: '1px solid #f8fafc' }}>
+                <span style={{ fontFamily: 'monospace', fontSize: 11, color: '#94a3b8', flexShrink: 0 }}>
+                  {new Date(entry.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
+                </span>
+                <span style={{ fontSize: 13, color: '#334155' }}>{entry.msg}</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
 
-      {/* Embedded Job History Master Table */}
-      <div className="bg-[#020614] border border-slate-800 rounded-3xl p-6 shadow-xl mt-8">
-        <h2 className="text-lg font-bold mb-6 flex items-center gap-2 text-slate-200">
-          <FileText className="text-indigo-400" size={20} /> Real-Time Job History
-        </h2>
-        <div className="overflow-x-auto rounded-xl border border-slate-800 font-sans">
-          <table className="w-full text-left text-sm text-slate-300">
-            <thead className="text-[11px] font-bold uppercase bg-slate-950/80 text-slate-400 tracking-wider">
-              <tr>
-                <th scope="col" className="px-6 py-4 border-b border-slate-800">Job ID</th>
-                <th scope="col" className="px-6 py-4 border-b border-slate-800">Type</th>
-                <th scope="col" className="px-6 py-4 border-b border-slate-800">Status</th>
-                <th scope="col" className="px-6 py-4 border-b border-slate-800 text-center">Attempts</th>
-                <th scope="col" className="px-6 py-4 border-b border-slate-800 text-right">Last Updated</th>
+      {/* Job History Table */}
+      <div style={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 12, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <FileText size={16} style={{ color: '#6366f1' }} />
+          <h2 style={{ fontSize: 14, fontWeight: 600, color: '#0f172a', margin: 0 }}>Job History</h2>
+          <span style={{ marginLeft: 'auto', fontSize: 11, color: '#94a3b8' }}>Last 50 · updates every 5s</span>
+        </div>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+            <thead>
+              <tr style={{ backgroundColor: '#f8fafc' }}>
+                {[['Job ID','left'],['Type','left'],['Status','left'],['Attempts','center'],['Last Updated','right']].map(([h, align]) => (
+                  <th key={h} style={{ padding: '10px 16px', textAlign: align as 'left'|'center'|'right', fontSize: 11, fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.06em', borderBottom: '1px solid #e2e8f0' }}>{h}</th>
+                ))}
               </tr>
             </thead>
             <tbody>
               {history.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="px-6 py-8 text-center text-slate-500 bg-slate-900/20 italic">No historical data records found...</td>
-                </tr>
-              ) : (
-                history.map((job) => (
-                  <tr key={job.id} className="bg-transparent border-b border-slate-800/60 hover:bg-slate-800/40 transition-colors">
-                    <td className="px-6 py-4 font-mono text-slate-400">{job.id.slice(0, 8)}</td>
-                    <td className="px-6 py-4 font-medium text-slate-300">{job.type}</td>
-                    <td className="px-6 py-4">
-                      <span className={`px-2.5 py-1 text-[10px] uppercase font-bold tracking-widest rounded-full border ${job.status === 'completed' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
-                        job.status === 'processing' ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20' :
-                          job.status === 'delayed' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' :
-                            job.status === 'dlq' ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' :
-                              'bg-indigo-500/10 text-indigo-400 border-indigo-500/20'
-                        }`}>
-                        {job.status}
-                      </span>
+                <tr><td colSpan={5} style={{ padding: '32px', textAlign: 'center', color: '#94a3b8', fontStyle: 'italic' }}>No job records yet</td></tr>
+              ) : history.map(job => {
+                const sMap: Record<string, [string, string, string]> = {
+                  completed: ['#16a34a','#f0fdf4','#bbf7d0'],
+                  processing: ['#0891b2','#ecfeff','#a5f3fc'],
+                  delayed: ['#d97706','#fffbeb','#fde68a'],
+                  dlq: ['#dc2626','#fef2f2','#fecaca'],
+                  cancelled: ['#64748b','#f8fafc','#e2e8f0'],
+                  pending: ['#6366f1','#eef2ff','#c7d2fe'],
+                };
+                const [sc, sbg, sb] = sMap[job.status] || sMap.pending;
+                return (
+                  <tr key={job.id} style={{ borderBottom: '1px solid #f1f5f9', transition: 'background 0.1s' }}
+                    onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#f8fafc')}
+                    onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}>
+                    <td style={{ padding: '12px 16px', fontFamily: 'monospace', fontSize: 12, color: '#64748b' }}>{job.id.slice(0, 8)}</td>
+                    <td style={{ padding: '12px 16px', fontWeight: 500, color: '#334155' }}>{job.type}</td>
+                    <td style={{ padding: '12px 16px' }}>
+                      <span style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', padding: '3px 8px', borderRadius: 20, color: sc, backgroundColor: sbg, border: `1px solid ${sb}` }}>{job.status}</span>
                     </td>
-                    <td className="px-6 py-4 text-center font-mono text-slate-400">{job.attempts}</td>
-                    <td className="px-6 py-4 text-right tabular-nums text-slate-500">
+                    <td style={{ padding: '12px 16px', textAlign: 'center', fontFamily: 'monospace', color: '#64748b' }}>{job.attempts}</td>
+                    <td style={{ padding: '12px 16px', textAlign: 'right', color: '#94a3b8', fontSize: 12 }}>
                       {new Date(job.updated_at).toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                     </td>
                   </tr>
-                ))
-              )}
+                );
+              })}
             </tbody>
           </table>
         </div>
       </div>
+
     </div>
   );
 }
