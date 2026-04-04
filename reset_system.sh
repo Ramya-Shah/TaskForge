@@ -22,6 +22,7 @@ docker exec -t taskforge-postgres psql -U taskforge -d taskforge -c "TRUNCATE TA
 echo "   ✓ PostgreSQL jobs table truncated!"
 
 echo "🏗️ Performing a clean build and deployment..."
+chmod +x deploy.sh
 ./deploy.sh
 
 echo ""
