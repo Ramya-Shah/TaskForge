@@ -14,13 +14,11 @@ echo "🛑 Stopping and deleting all PM2 processes..."
 pm2 delete all || true
 
 echo "🧹 Clearing Redis (Queues, State, Paused flags)..."
-redis-cli FLUSHALL
+docker exec -t taskforge-redis redis-cli FLUSHALL
 echo "   ✓ Redis flushed!"
 
 echo "🐘 Clearing PostgreSQL (Job Records)..."
-# Using environment variables if available, otherwise defaults
-export PGPASSWORD=${DB_PASSWORD:-"password"}
-psql -h ${DB_HOST:-"localhost"} -U ${DB_USER:-"taskforge"} -d ${DB_NAME:-"taskforge"} -c "TRUNCATE TABLE jobs RESTART IDENTITY;"
+docker exec -t taskforge-postgres psql -U taskforge -d taskforge -c "TRUNCATE TABLE jobs RESTART IDENTITY;"
 echo "   ✓ PostgreSQL jobs table truncated!"
 
 echo "🏗️ Performing a clean build and deployment..."
