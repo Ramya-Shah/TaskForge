@@ -1,11 +1,9 @@
-import React from 'react';
-import Dashboard from './components/Dashboard';
-
+import Dashboard from './components/Dashboard'
 function App() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 p-8 pt-12 text-left">
       <div className="max-w-7xl mx-auto space-y-8">
-        <header className="flex items-center justify-between border-b pb-6 mb-8" style={{borderColor: 'rgba(51, 65, 85, 0.4)'}}>
+        <header className="flex items-center justify-between border-b pb-6 mb-8" style={{ borderColor: 'rgba(51, 65, 85, 0.4)' }}>
           <div>
             <h1 className="text-4xl font-extrabold pb-2" style={{
               background: 'linear-gradient(to right, #818cf8, #c084fc)',
