@@ -89,8 +89,8 @@ app.post('/queue/purge', async (req, res) => {
   // 2. Wipe the hidden exponential backoff sorted set 
   await redis.del('queue:taskforge:delayed');
   
-  // 3. Mark both states as permanently cancelled natively
-  await db.query("UPDATE jobs SET status = 'cancelled' WHERE status IN ('pending', 'delayed')");
+  // 3. Mark all active states as permanently cancelled natively
+  await db.query("UPDATE jobs SET status = 'cancelled' WHERE status IN ('pending', 'delayed', 'processing')");
   
   io.emit('queue:purged');
   res.json({ success: true });
