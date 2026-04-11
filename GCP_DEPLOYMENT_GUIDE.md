@@ -33,7 +33,7 @@ Go to [https://cloud.google.com](https://cloud.google.com) and click **Get Start
    - ✅ Check **Allow HTTP traffic** (opens port 80)
    - ✅ Check **Allow HTTPS traffic** (optional, for future SSL)
 8. Click **Create** → wait ~60 seconds until the VM status shows a green checkmark.
-9. Note your VM's **External IP address** (e.g., `34.121.45.67`). **Save this — it is your server's address!**
+9. Note your VM's **External IP address** (e.g., `34.66.168.60`). **Save this — it is your server's address!**
 
 ### Step 4: Open Port 3001 (for Direct API Access)
 1. Go to **VPC Network → Firewall** in the GCP Console.
@@ -71,9 +71,9 @@ ssh-keygen -t rsa -b 4096 -C "your-email@gmail.com" -f ~/.ssh/taskforge-gcp
 
 #### Step 3: Connect
 ```bash
-ssh -i ~/.ssh/taskforge-gcp your-gcp-username@34.121.45.67
+ssh -i ~/.ssh/taskforge-gcp your-gcp-username@34.66.168.60
 ```
-Replace `34.121.45.67` with your actual External IP, and `your-gcp-username` with your Google account username (the part before `@gmail.com`).
+Replace `34.66.168.60` with your actual External IP, and `your-gcp-username` with your Google account username (the part before `@gmail.com`).
 
 > [!NOTE]
 > You are now **inside your Ubuntu server** running in Google's data center. Every command from this point runs remotely on GCP.
@@ -107,7 +107,7 @@ sudo usermod -aG docker $USER
 > After the `usermod` command, **you MUST disconnect and reconnect SSH** or Docker commands will fail with permission errors:
 > ```bash
 > exit
-> ssh -i ~/.ssh/taskforge-gcp your-gcp-username@34.121.45.67
+> ssh -i ~/.ssh/taskforge-gcp your-gcp-username@34.66.168.60
 > ```
 
 ### Step 4: Install Nginx
@@ -116,7 +116,7 @@ sudo apt install nginx -y
 sudo systemctl enable nginx
 sudo systemctl start nginx
 ```
-Quick test: Open `http://34.121.45.67` in your browser → you should see the Nginx welcome page. This confirms port 80 is open.
+Quick test: Open `http://34.66.168.60` in your browser → you should see the Nginx welcome page. This confirms port 80 is open.
 
 ### Step 5: Install PM2
 ```bash
@@ -226,7 +226,7 @@ Expected: `{"message": "Job queued successfully", "jobId": "..."}`
 
 Open your browser and go to:
 ```
-http://34.121.45.67
+http://34.66.168.60
 ```
 
 Your full TaskForge React dashboard will load — live, in production, on the public internet!
