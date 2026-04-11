@@ -1,17 +1,66 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
-@theme {
-  --color-primary-500: #6366f1;
-  --color-success-500: #22c55e;
-  --color-error-500: #ef4444;
-  --color-warning-500: #f59e0b;
+/* ─── Color Palette ─────────────────────────────────────────────────────────── */
+:root {
+  /* Primary — deep forest green */
+  --green-dark:   #2F8B3F;
+  --green-mid:    #7FB77E;
+  --gold:         #F7C85C;
+  --cream:        #FFF6C0;
+
+  /* Derived surfaces */
+  --bg:           #f7f5e8;           /* slightly more saturated cream */
+  --surface:      #ffffff;
+  --surface-raised: #fffef5;
+  --border:       #d6e8cc;
+  --border-light: #e8f0e2;
+
+  /* Text */
+  --text-primary: #1a2e1c;
+  --text-secondary: #4a6b4c;
+  --text-muted:   #7a9b7c;
+
+  /* Status badge colours (repainted to palette) */
+  --completed-text:   #2F8B3F;
+  --completed-bg:     #eef7ee;
+  --completed-border: #b8ddb8;
+
+  --processing-text:  #1e6b6b;
+  --processing-bg:    #e2f5f5;
+  --processing-border:#a0d4d4;
+
+  --delayed-text:     #7a5200;
+  --delayed-bg:       #fff8dc;
+  --delayed-border:   #f0d675;
+
+  --dlq-text:         #8b1a1a;
+  --dlq-bg:           #fdf0f0;
+  --dlq-border:       #e8b0b0;
+
+  --pending-text:     #2F5B8B;
+  --pending-bg:       #eef2fb;
+  --pending-border:   #b0c8e8;
 }
 
+/* ─── Base ───────────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
 body {
-  background-color: #f1f5f9;
-  color: #0f172a;
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(ellipse at 20% 0%, rgba(127,183,126,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 100%, rgba(247,200,92,0.12) 0%, transparent 50%);
+  background-attachment: fixed;
+  color: var(--text-primary);
   margin: 0;
   font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
 }
+
+/* Thin custom scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--green-mid); }
