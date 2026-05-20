@@ -249,6 +249,28 @@ pm2 save
 
 ---
 
+## PHASE 11 — Enable HTTPS / SSL (Let's Encrypt)
+
+Now that Nginx is serving your site, you can easily secure it with an automatic SSL certificate using Certbot.
+
+### Step 1: Install Certbot
+```bash
+sudo apt install certbot python3-certbot-nginx -y
+```
+
+### Step 2: Request and Inject the SSL Certificate
+Run the following command. Certbot will ask for your email (for renewal notices) and then automatically update your Nginx configuration to support HTTPS.
+```bash
+sudo certbot --nginx -d taskforge-ramya.duckdns.org
+```
+
+When prompted, agree to the terms of service. Certbot will handle the challenge and restart Nginx for you.
+
+> [!NOTE]
+> Let's Encrypt certificates expire every 90 days. The `python3-certbot-nginx` package automatically installs a background cron job that will renew the certificate for you before it expires, so this is a "set and forget" process!
+
+---
+
 ## Future Deployments (Every Time You Push New Code)
 
 Push from your Windows machine → then SSH into GCP and run:
